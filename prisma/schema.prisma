@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Cars {
+  id           String    @id @default(uuid())
+  model        String
+  plate        String
+  brand        String
+  serviceId    String
+  userId       String
+  checkInTime  DateTime  @default(now())
+  checkOutTime DateTime?
+  status       String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  isFinished   Boolean
+  service      Services  @relation(fields: [serviceId], references: [id])
+  user         Users     @relation(fields: [userId], references: [id])
+}
+
+model Services {
+  id            String @id @default(uuid())
+  name          String
+  paymentMethod String
+  amount        String
+  userId        String
+  cars          Cars[]
+  tags          Tags[]
+  user          Users  @relation(fields: [userId], references: [id])
+}
+
+model Tags {
+  id       String     @id @default(uuid())
+  name     String     @unique
+  userId   String
+  services Services[]
+  user     Users      @relation(fields: [userId], references: [id])
+}
+
+model Users {
+  id        String     @id @default(uuid())
+  name      String?
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  isActive  Boolean    @default(true)
+  role      Role       @default(USER)
+  Cars      Cars[]
+  Services  Services[]
+  Tags      Tags[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
