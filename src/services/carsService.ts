@@ -6,6 +6,7 @@ type createData = {
   status: string;
   brand: string;
   serviceId: string;
+  userId: string;
 };
 
 type findUniqueByIdData = {

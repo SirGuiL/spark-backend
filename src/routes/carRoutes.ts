@@ -10,14 +10,34 @@ const prisma = new PrismaClient();
 const carsController = new CarsController(prisma);
 
 // @ts-ignore
-router.post("/", [authenticateJWT], carsController.create);
-// @ts-ignore
-router.get("/", [authenticateJWT], carsController.fetchAll);
-// @ts-ignore
-router.get("/:id", [authenticateJWT], carsController.findUniqueById);
-// @ts-ignore
-router.put("/:id", [authenticateJWT], carsController.update);
-// @ts-ignore
-router.delete("/:id", [authenticateJWT], carsController.delete);
+router.post("/", [authenticateJWT], carsController.create.bind(carsController));
+
+router.get(
+  "/",
+  // @ts-ignore
+  [authenticateJWT],
+  carsController.fetchAll.bind(carsController)
+);
+
+router.get(
+  "/:id",
+  // @ts-ignore
+  [authenticateJWT],
+  carsController.findUniqueById.bind(carsController)
+);
+
+router.put(
+  "/:id",
+  // @ts-ignore
+  [authenticateJWT],
+  carsController.update.bind(carsController)
+);
+
+router.delete(
+  "/:id",
+  // @ts-ignore
+  [authenticateJWT],
+  carsController.delete.bind(carsController)
+);
 
 export { router };

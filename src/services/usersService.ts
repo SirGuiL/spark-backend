@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
 
 type createData = {
   email: string;
@@ -20,8 +21,10 @@ export class UsersService {
   async create(data: createData) {
     const { email, password, name } = data;
 
+    const encodedPassword = await bcrypt.hash(password, 10);
+
     return await this.db.users.create({
-      data: { email, password, name },
+      data: { email, password: encodedPassword, name },
     });
   }
 

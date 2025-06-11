@@ -13,8 +13,8 @@ export class ServicesController {
 
   async create(req: Request, res: Response) {
     try {
-      const { name, amount, paymentMethod, tags } = req.body;
-      const requiredFields = { name, amount, paymentMethod, tags };
+      const { name, amount, paymentMethod, tags, userId } = req.body;
+      const requiredFields = { name, amount, paymentMethod, tags, userId };
 
       if (!Validators.validateRequiredFields(res, requiredFields)) {
         return;
@@ -26,6 +26,7 @@ export class ServicesController {
         name,
         amount,
         paymentMethod,
+        userId,
       });
 
       res.status(201).json(service);
@@ -73,8 +74,8 @@ export class ServicesController {
       return res.status(400).json({ error: "Id is required" });
     }
 
-    const { amount, paymentMethod, name } = req.body;
-    const requiredFields = { amount, paymentMethod, name };
+    const { amount, paymentMethod, name, userId } = req.body;
+    const requiredFields = { amount, paymentMethod, name, userId };
 
     if (!Validators.validateRequiredFields(res, requiredFields)) {
       return;
@@ -87,6 +88,7 @@ export class ServicesController {
         amount,
         paymentMethod,
         name,
+        userId,
       });
 
       res.status(200).json(updatedService);

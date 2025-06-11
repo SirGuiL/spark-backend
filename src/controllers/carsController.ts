@@ -13,8 +13,8 @@ export class CarsController {
 
   async create(req: Request, res: Response) {
     try {
-      const { plate, model, status, brand, serviceId } = req.body;
-      const requiredFields = { plate, model, status, brand, serviceId };
+      const { plate, model, status, brand, serviceId, userId } = req.body;
+      const requiredFields = { plate, model, status, brand, serviceId, userId };
 
       if (!Validators.validateRequiredFields(res, requiredFields)) {
         return;
@@ -28,6 +28,7 @@ export class CarsController {
         status,
         brand,
         serviceId,
+        userId,
       });
 
       res.status(201).json(car);

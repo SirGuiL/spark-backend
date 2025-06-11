@@ -9,15 +9,39 @@ const router = Router();
 const prisma = new PrismaClient();
 const servicesController = new ServicesController(prisma);
 
-// @ts-ignore
-router.post("/", [authenticateJWT], servicesController.create);
-// @ts-ignore
-router.get("/", [authenticateJWT], servicesController.fetchAll);
-// @ts-ignore
-router.get("/:id", [authenticateJWT], servicesController.findUniqueById);
-// @ts-ignore
-router.put("/:id", [authenticateJWT], servicesController.update);
-// @ts-ignore
-router.delete("/:id", [authenticateJWT], servicesController.delete);
+router.post(
+  "/",
+  // @ts-ignore
+  [authenticateJWT],
+  servicesController.create.bind(servicesController)
+);
+
+router.get(
+  "/",
+  // @ts-ignore
+  [authenticateJWT],
+  servicesController.fetchAll.bind(servicesController)
+);
+
+router.get(
+  "/:id",
+  // @ts-ignore
+  [authenticateJWT],
+  servicesController.findUniqueById.bind(servicesController)
+);
+
+router.put(
+  "/:id",
+  // @ts-ignore
+  [authenticateJWT],
+  servicesController.update.bind(servicesController)
+);
+
+router.delete(
+  "/:id",
+  // @ts-ignore
+  [authenticateJWT],
+  servicesController.delete.bind(servicesController)
+);
 
 export { router };

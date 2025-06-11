@@ -14,5 +14,18 @@ services:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npx ts-node src/index.ts
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+
 volumes:
   pgdata:

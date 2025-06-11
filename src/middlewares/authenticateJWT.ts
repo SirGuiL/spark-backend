@@ -1,9 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { UsersService } from "../services/usersService";
+import { PrismaClient } from "@prisma/client";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+const ACCESS_JWT_SECRET = process.env.ACCESS_JWT_SECRET!;
 
-export function authenticateJWT(
+const prisma = new PrismaClient();
+
+export async function authenticateJWT(
   req: Request,
   res: Response,
   next: NextFunction
@@ -17,14 +21,17 @@ export function authenticateJWT(
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as {
-      id: string;
+    const decoded = jwt.verify(token, ACCESS_JWT_SECRET) as {
+      userId: string;
     } & JwtPayload;
 
+    const usersService = new UsersService(prisma);
+    const user = await usersService.me({ id: decoded.userId });
+
     // @ts-ignore
-    req.user = decoded;
+    req.user = user;
     next();
   } catch (err) {
-    return res.status(403).json({ error: "Invalid or expired token" });
+    return res.status(400).json({ error: "Error on try to authenticate" });
   }
 }

@@ -4,6 +4,7 @@ type createData = {
   name: string;
   amount: string;
   paymentMethod: string;
+  userId: string;
 };
 
 type findUniqueByIdData = {
@@ -20,10 +21,10 @@ export class ServicesService {
   }
 
   async create(data: createData) {
-    const { amount, name, paymentMethod } = data;
+    const { amount, name, paymentMethod, userId } = data;
 
     return await this.db.services.create({
-      data: { name, amount, paymentMethod },
+      data: { name, amount, paymentMethod, userId },
     });
   }
 
