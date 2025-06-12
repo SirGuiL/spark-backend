@@ -1,42 +1,42 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 
-import { UsersController } from "../controllers/usersController";
+import { AccountController } from "../controllers/accountController";
 import { authenticateJWT } from "../middlewares/authenticateJWT";
 
 const router = Router();
 
 const prisma = new PrismaClient();
-const usersController = new UsersController(prisma);
+const accountController = new AccountController(prisma);
 
-router.post("/", usersController.create.bind(usersController));
+router.post("/", accountController.create.bind(accountController));
 
 router.get(
-  "/me",
+  "/",
   // @ts-ignore
   [authenticateJWT],
-  usersController.getByToken.bind(usersController)
+  accountController.getByToken.bind(accountController)
 );
 
 router.put(
   "/:id",
   // @ts-ignore
   [authenticateJWT],
-  usersController.update.bind(usersController)
+  accountController.update.bind(accountController)
 );
 
 router.patch(
   "/:id/activate",
   // @ts-ignore
   [authenticateJWT],
-  usersController.activate.bind(usersController)
+  accountController.activate.bind(accountController)
 );
 
 router.patch(
   "/:id/deactivate",
   // @ts-ignore
   [authenticateJWT],
-  usersController.deactivate.bind(usersController)
+  accountController.deactivate.bind(accountController)
 );
 
 export { router };

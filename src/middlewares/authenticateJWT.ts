@@ -32,6 +32,6 @@ export async function authenticateJWT(
     req.user = user;
     next();
   } catch (err) {
-    return res.status(400).json({ error: "Error on try to authenticate" });
+    return res.status(400).json({ error: "Invalid token" });
   }
 }

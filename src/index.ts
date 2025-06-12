@@ -2,7 +2,13 @@ import express from "express";
 import * as dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
-import { carRoutes, serviceRoutes, authRoutes, userRoutes } from "./routes";
+import {
+  carRoutes,
+  serviceRoutes,
+  authRoutes,
+  userRoutes,
+  accountRoutes,
+} from "./routes";
 
 dotenv.config();
 
@@ -15,6 +21,7 @@ app.use("/cars", carRoutes);
 app.use("/services", serviceRoutes);
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
+app.use("/account", accountRoutes);
 
 const PORT = process.env.PORT || 3000;
 

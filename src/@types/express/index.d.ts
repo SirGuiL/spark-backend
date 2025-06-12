@@ -11,6 +11,7 @@ declare global {
         createdAt: Date;
         updatedAt: Date;
         isActive: boolean;
+        accountId: string;
         role: $Enums.Role;
       } | null;
     }

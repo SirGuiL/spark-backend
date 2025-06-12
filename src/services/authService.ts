@@ -28,6 +28,10 @@ export class AuthService {
         },
       });
 
+      if (!user.isActive) {
+        throw new Error("User is inactive");
+      }
+
       const isMatch = await compare(password, user.password);
 
       if (isMatch) {

@@ -57,10 +57,21 @@ model Users {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   isActive  Boolean    @default(true)
+  accountId String
   role      Role       @default(USER)
   Cars      Cars[]
   Services  Services[]
   Tags      Tags[]
+  account   Accounts   @relation(fields: [accountId], references: [id])
+}
+
+model Accounts {
+  id        String   @id @default(uuid())
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isActive  Boolean  @default(true)
+  Users     Users[]
 }
 
 enum Role {

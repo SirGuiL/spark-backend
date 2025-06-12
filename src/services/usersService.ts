@@ -5,6 +5,14 @@ type createData = {
   email: string;
   password: string;
   name: string;
+  accountId: string;
+};
+
+type updateData = {
+  id: string;
+  email?: string;
+  password?: string;
+  name?: string;
 };
 
 type MeData = {
@@ -19,18 +27,41 @@ export class UsersService {
   }
 
   async create(data: createData) {
-    const { email, password, name } = data;
+    const { email, password, name, accountId } = data;
 
     const encodedPassword = await bcrypt.hash(password, 10);
 
     return await this.db.users.create({
-      data: { email, password: encodedPassword, name },
+      data: { email, password: encodedPassword, name, accountId },
     });
   }
 
   async me({ id }: MeData) {
     return await this.db.users.findUnique({
       where: { id },
+    });
+  }
+
+  async update(data: updateData) {
+    const { id, email, password, name } = data;
+
+    return await this.db.users.update({
+      where: { id },
+      data: { email, password, name },
+    });
+  }
+
+  async activate({ id }: { id: string }) {
+    return await this.db.users.update({
+      where: { id },
+      data: { isActive: true },
+    });
+  }
+
+  async deactivate({ id }: { id: string }) {
+    return await this.db.users.update({
+      where: { id },
+      data: { isActive: false },
     });
   }
 }

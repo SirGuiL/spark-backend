@@ -28,10 +28,6 @@ export class AuthController {
     }
   }
 
-  logout(req: Request, res: Response) {
-    res.status(201);
-  }
-
   async refresh(req: Request, res: Response) {
     const refreshToken = req.body.refreshToken;
 
