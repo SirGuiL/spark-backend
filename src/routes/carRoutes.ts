@@ -9,8 +9,12 @@ const router = Router();
 const prisma = new PrismaClient();
 const carsController = new CarsController(prisma);
 
-// @ts-ignore
-router.post("/", [authenticateJWT], carsController.create.bind(carsController));
+router.post(
+  "/",
+  // @ts-ignore
+  [authenticateJWT],
+  carsController.register.bind(carsController)
+);
 
 router.get(
   "/",

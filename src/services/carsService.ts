@@ -3,9 +3,7 @@ import { PrismaClient } from "@prisma/client";
 type createData = {
   plate: string;
   model: string;
-  status: string;
   brand: string;
-  serviceId: string;
   userId: string;
 };
 
@@ -18,6 +16,10 @@ type updateData = {
   plate: string;
   model: string;
   brand: string;
+};
+
+type addRegisterData = {
+  carId: string;
   serviceId: string;
 };
 
@@ -32,7 +34,6 @@ export class CarsService {
     return await this.db.cars.create({
       data: {
         ...data,
-        isFinished: false,
       },
     });
   }
@@ -48,17 +49,34 @@ export class CarsService {
   }
 
   async update(data: updateData) {
-    const { id, plate, model, brand, serviceId } = data;
+    const { id, plate, model, brand } = data;
 
     return await this.db.cars.update({
       where: { id },
-      data: { plate, model, brand, serviceId },
+      data: { plate, model, brand },
     });
   }
 
   async delete({ id }: findUniqueByIdData) {
     return await this.db.cars.delete({
       where: { id },
+    });
+  }
+
+  async findCarByPlate({ plate }: { plate: string }) {
+    return await this.db.cars.findUnique({
+      where: { plate },
+    });
+  }
+
+  async addRegister(data: addRegisterData) {
+    const { carId, serviceId } = data;
+
+    this.db.carsServices.create({
+      data: {
+        carId,
+        serviceId,
+      },
     });
   }
 }

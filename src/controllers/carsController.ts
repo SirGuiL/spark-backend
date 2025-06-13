@@ -11,27 +11,62 @@ export class CarsController {
     this.prisma = prisma;
   }
 
-  async create(req: Request, res: Response) {
+  async register(req: Request, res: Response) {
     try {
-      const { plate, model, status, brand, serviceId, userId } = req.body;
-      const requiredFields = { plate, model, status, brand, serviceId, userId };
+      // @ts-ignore
+      const { user } = req;
+      const { plate, model, brand, userId, serviceId } = req.body;
+      const requiredFields = { plate, model, brand, userId, serviceId };
+
+      if (!user) {
+        res.status(400).json({
+          error: "User not found",
+        });
+        return;
+      }
 
       if (!Validators.validateRequiredFields(res, requiredFields)) {
         return;
       }
 
+      if (!Validators.isValidLicentePlate(plate)) {
+        res.status(400).json({ error: "Invalid plate" });
+        return;
+      }
+
       const carsService = new CarsService(this.prisma);
+      const carWithSamePlate = await carsService.findCarByPlate({ plate });
+
+      if (carWithSamePlate) {
+        const register = await carsService.addRegister({
+          carId: carWithSamePlate.id,
+          serviceId,
+        });
+
+        res.status(200).json({
+          message: "Car registered successfully",
+          register,
+        });
+
+        return;
+      }
 
       const car = await carsService.create({
         plate,
         model,
-        status,
         brand,
-        serviceId,
-        userId,
+        userId: user.id,
       });
 
-      res.status(201).json(car);
+      const register = await carsService.addRegister({
+        carId: car.id,
+        serviceId,
+      });
+
+      res.status(201).json({
+        message: "Car registered successfully",
+        register,
+      });
     } catch (error: any) {
       res.status(400).json({ error: error });
     }
@@ -72,8 +107,8 @@ export class CarsController {
   async update(req: Request, res: Response) {
     const id = req.params.id;
 
-    const { plate, model, brand, serviceId } = req.body;
-    const requiredFields = { plate, model, brand, serviceId };
+    const { plate, model, brand } = req.body;
+    const requiredFields = { plate, model, brand };
 
     if (!id) {
       return res.status(400).json({ error: "Id is required" });
@@ -89,7 +124,6 @@ export class CarsController {
         plate,
         model,
         brand,
-        serviceId,
         id,
       });
 

@@ -22,11 +22,15 @@ export class AuthService {
     const { email, password } = data;
 
     try {
-      const user = await this.db.users.findUniqueOrThrow({
+      const user = await this.db.users.findUnique({
         where: {
           email,
         },
       });
+
+      if (!user) {
+        throw new Error("Email or password incorrect");
+      }
 
       if (!user.isActive) {
         throw new Error("User is inactive");

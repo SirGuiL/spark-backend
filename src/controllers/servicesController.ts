@@ -13,11 +13,15 @@ export class ServicesController {
 
   async create(req: Request, res: Response) {
     try {
-      const { name, amount, paymentMethod, tags, userId } = req.body;
-      const requiredFields = { name, amount, paymentMethod, tags, userId };
+      const { name, amount, userId, tags } = req.body;
+      const requiredFields = { name, amount, userId, tags };
 
       if (!Validators.validateRequiredFields(res, requiredFields)) {
         return;
+      }
+
+      if (tags && !Array.isArray(tags)) {
+        return res.status(400).json({ error: "Tags must be an array" });
       }
 
       const servicesService = new ServicesService(this.prisma);
@@ -25,9 +29,12 @@ export class ServicesController {
       const service = await servicesService.create({
         name,
         amount,
-        paymentMethod,
         userId,
       });
+
+      if (tags) {
+        await servicesService.addTags({ serviceId: service.id, tags });
+      }
 
       res.status(201).json(service);
     } catch (error: any) {
@@ -74,8 +81,8 @@ export class ServicesController {
       return res.status(400).json({ error: "Id is required" });
     }
 
-    const { amount, paymentMethod, name, userId } = req.body;
-    const requiredFields = { amount, paymentMethod, name, userId };
+    const { amount, name, userId } = req.body;
+    const requiredFields = { amount, name, userId };
 
     if (!Validators.validateRequiredFields(res, requiredFields)) {
       return;
@@ -86,7 +93,6 @@ export class ServicesController {
       const updatedService = await servicesService.update({
         id,
         amount,
-        paymentMethod,
         name,
         userId,
       });

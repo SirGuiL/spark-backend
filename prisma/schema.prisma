@@ -14,39 +14,58 @@ datasource db {
 }
 
 model Cars {
-  id           String    @id @default(uuid())
+  id           String         @id @default(uuid())
   model        String
-  plate        String
+  plate        String         @unique
   brand        String
-  serviceId    String
   userId       String
-  checkInTime  DateTime  @default(now())
-  checkOutTime DateTime?
-  status       String
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  isFinished   Boolean
-  service      Services  @relation(fields: [serviceId], references: [id])
-  user         Users     @relation(fields: [userId], references: [id])
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  services     Services[]
+  user         Users          @relation(fields: [userId], references: [id])
+  CarsServices CarsServices[]
 }
 
 model Services {
-  id            String @id @default(uuid())
-  name          String
-  paymentMethod String
-  amount        String
-  userId        String
-  cars          Cars[]
-  tags          Tags[]
-  user          Users  @relation(fields: [userId], references: [id])
+  id           String         @id @default(uuid())
+  name         String
+  amount       String
+  userId       String
+  cars         Cars[]
+  tags         Tags[]
+  user         Users          @relation(fields: [userId], references: [id])
+  CarsServices CarsServices[]
+  ServicesTags ServicesTags[]
+}
+
+model CarsServices {
+  id            String    @id @default(uuid())
+  carId         String
+  serviceId     String
+  createdAt     DateTime  @default(now())
+  isFinished    Boolean   @default(false)
+  finishedAt    DateTime?
+  paymentMethod String?
+
+  car      Cars     @relation(fields: [carId], references: [id])
+  services Services @relation(fields: [serviceId], references: [id])
 }
 
 model Tags {
-  id       String     @id @default(uuid())
-  name     String     @unique
-  userId   String
-  services Services[]
-  user     Users      @relation(fields: [userId], references: [id])
+  id           String         @id @default(uuid())
+  name         String         @unique
+  userId       String
+  services     Services[]
+  user         Users          @relation(fields: [userId], references: [id])
+  ServicesTags ServicesTags[]
+}
+
+model ServicesTags {
+  id        String   @id @default(uuid())
+  tagId     String
+  serviceId String
+  tag       Tags     @relation(fields: [tagId], references: [id])
+  service   Services @relation(fields: [serviceId], references: [id])
 }
 
 model Users {
