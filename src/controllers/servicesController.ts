@@ -13,8 +13,16 @@ export class ServicesController {
 
   async create(req: Request, res: Response) {
     try {
-      const { name, amount, userId, tags } = req.body;
-      const requiredFields = { name, amount, userId, tags };
+      // @ts-ignore
+      const { user } = req;
+
+      if (!user) {
+        res.status(400).json({ error: "User not found" });
+        return;
+      }
+
+      const { name, amount, tags } = req.body;
+      const requiredFields = { name, amount, tags };
 
       if (!Validators.validateRequiredFields(res, requiredFields)) {
         return;
@@ -29,7 +37,7 @@ export class ServicesController {
       const service = await servicesService.create({
         name,
         amount,
-        userId,
+        userId: user.id,
       });
 
       if (tags) {

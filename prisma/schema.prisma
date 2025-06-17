@@ -55,6 +55,7 @@ model Tags {
   id           String         @id @default(uuid())
   name         String         @unique
   userId       String
+  createdAt    DateTime       @default(now())
   services     Services[]
   user         Users          @relation(fields: [userId], references: [id])
   ServicesTags ServicesTags[]

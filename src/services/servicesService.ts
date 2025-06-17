@@ -33,7 +33,7 @@ export class ServicesService {
   }
 
   async fetchAll() {
-    await this.db.services.findMany();
+    return await this.db.services.findMany();
   }
 
   async findUniqueById({ id }: findUniqueByIdData) {
