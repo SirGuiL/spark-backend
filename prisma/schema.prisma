@@ -29,7 +29,7 @@ model Cars {
 model Services {
   id           String         @id @default(uuid())
   name         String
-  amount       String
+  amount       Float
   userId       String
   cars         Cars[]
   tags         Tags[]
@@ -42,12 +42,14 @@ model CarsServices {
   id            String    @id @default(uuid())
   carId         String
   serviceId     String
+  userId        String
   createdAt     DateTime  @default(now())
   isFinished    Boolean   @default(false)
   finishedAt    DateTime?
   paymentMethod String?
 
   car      Cars     @relation(fields: [carId], references: [id])
+  user     Users    @relation(fields: [userId], references: [id])
   services Services @relation(fields: [serviceId], references: [id])
 }
 
@@ -65,24 +67,28 @@ model ServicesTags {
   id        String   @id @default(uuid())
   tagId     String
   serviceId String
+  userId    String
+  user      Users    @relation(fields: [userId], references: [id])
   tag       Tags     @relation(fields: [tagId], references: [id])
   service   Services @relation(fields: [serviceId], references: [id])
 }
 
 model Users {
-  id        String     @id @default(uuid())
-  name      String?
-  email     String     @unique
-  password  String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  isActive  Boolean    @default(true)
-  accountId String
-  role      Role       @default(USER)
-  Cars      Cars[]
-  Services  Services[]
-  Tags      Tags[]
-  account   Accounts   @relation(fields: [accountId], references: [id])
+  id           String         @id @default(uuid())
+  name         String?
+  email        String         @unique
+  password     String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  isActive     Boolean        @default(true)
+  accountId    String
+  role         Role           @default(USER)
+  Cars         Cars[]
+  Services     Services[]
+  Tags         Tags[]
+  account      Accounts       @relation(fields: [accountId], references: [id])
+  CarsServices CarsServices[]
+  ServicesTags ServicesTags[]
 }
 
 model Accounts {

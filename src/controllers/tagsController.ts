@@ -12,8 +12,16 @@ export class TagsController {
   }
 
   async create(req: Request, res: Response) {
-    const { name, userId } = req.body;
-    const requiredFields = { name, userId };
+    // @ts-ignore
+    const { user } = req;
+
+    if (!user) {
+      res.status(400).json({ error: "User not found" });
+      return;
+    }
+
+    const { name } = req.body;
+    const requiredFields = { name };
 
     if (!Validators.validateRequiredFields(res, requiredFields)) {
       return;
@@ -23,7 +31,7 @@ export class TagsController {
 
     const tag = await tagsService.create({
       name,
-      userId,
+      userId: user.id,
     });
 
     res.status(201).json(tag);
@@ -83,14 +91,12 @@ export class TagsController {
       userId: user.id,
     });
 
-    res
-      .status(200)
-      .json(
-        tags.map((tag) => ({
-          id: tag.id,
-          name: tag.name,
-          createdAt: tag.createdAt,
-        }))
-      );
+    res.status(200).json(
+      tags.map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        createdAt: tag.createdAt,
+      }))
+    );
   }
 }

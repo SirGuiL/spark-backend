@@ -15,8 +15,9 @@ export class CarsController {
     try {
       // @ts-ignore
       const { user } = req;
-      const { plate, model, brand, userId, serviceId } = req.body;
-      const requiredFields = { plate, model, brand, userId, serviceId };
+
+      const { plate, model, brand, serviceId } = req.body;
+      const requiredFields = { plate, model, brand, serviceId };
 
       if (!user) {
         res.status(400).json({
@@ -41,6 +42,7 @@ export class CarsController {
         const register = await carsService.addRegister({
           carId: carWithSamePlate.id,
           serviceId,
+          userId: user.id,
         });
 
         res.status(200).json({
@@ -61,6 +63,7 @@ export class CarsController {
       const register = await carsService.addRegister({
         carId: car.id,
         serviceId,
+        userId: user.id,
       });
 
       res.status(201).json({
@@ -93,10 +96,20 @@ export class CarsController {
     }
   }
 
-  async fetchAll(_: Request, res: Response) {
+  async fetchAll(req: Request, res: Response) {
     try {
+      // @ts-ignore
+      const user = req.user;
+
+      if (!user) {
+        res.status(400).json({ error: "User not found" });
+        return;
+      }
+
       const carsService = new CarsService(this.prisma);
-      const cars = await carsService.fetchAll();
+      const cars = await carsService.fetchAll({
+        userId: user.id,
+      });
 
       res.status(200).json(cars);
     } catch (error: any) {
@@ -148,5 +161,22 @@ export class CarsController {
     } catch (error: any) {
       res.status(400).json({ error: error });
     }
+  }
+
+  async findNotFinishedCarsServices(req: Request, res: Response) {
+    // @ts-ignore
+    const user = req.user;
+
+    if (!user) {
+      res.status(400).json({ error: "User not found" });
+      return;
+    }
+
+    const carsService = new CarsService(this.prisma);
+    const notFinishedServices = await carsService.findNotFinishedCarsServices({
+      userId: user.id,
+    });
+
+    res.status(200).json(notFinishedServices);
   }
 }

@@ -2,19 +2,33 @@ import { PrismaClient } from "@prisma/client";
 
 type createData = {
   name: string;
-  amount: string;
+  amount: number;
   userId: string;
+};
+
+type deleteData = {
+  id: string;
 };
 
 type findUniqueByIdData = {
   id: string;
+  userId: string;
 };
 
-type updateData = createData & { id: string };
+type updateData = {
+  id: string;
+  name: string;
+  amount: number;
+};
 
 type addTagsData = {
   serviceId: string;
+  userId: string;
   tags: string[];
+};
+
+type fetchAllData = {
+  userId: string;
 };
 
 export class ServicesService {
@@ -32,13 +46,39 @@ export class ServicesService {
     });
   }
 
-  async fetchAll() {
-    return await this.db.services.findMany();
+  async fetchAll({ userId }: fetchAllData) {
+    return await this.db.servicesTags.findMany({
+      where: { userId },
+      include: {
+        service: {
+          omit: {
+            userId: true,
+          },
+        },
+        tag: {
+          omit: {
+            userId: true,
+          },
+        },
+      },
+    });
   }
 
-  async findUniqueById({ id }: findUniqueByIdData) {
-    return await this.db.services.findUnique({
-      where: { id },
+  async findUniqueById({ id, userId }: findUniqueByIdData) {
+    return await this.db.servicesTags.findMany({
+      where: { userId, serviceId: id },
+      include: {
+        service: {
+          omit: {
+            userId: true,
+          },
+        },
+        tag: {
+          omit: {
+            userId: true,
+          },
+        },
+      },
     });
   }
 
@@ -51,14 +91,18 @@ export class ServicesService {
     });
   }
 
-  async delete({ id }: findUniqueByIdData) {
+  async delete({ id }: deleteData) {
+    await this.db.servicesTags.deleteMany({
+      where: { serviceId: id },
+    });
+
     return await this.db.services.delete({
       where: { id },
     });
   }
 
   async addTags(data: addTagsData) {
-    const { serviceId, tags } = data;
+    const { serviceId, tags, userId } = data;
 
     tags.map(async (id) => {
       const tag = await this.db.tags.findFirst({
@@ -83,6 +127,7 @@ export class ServicesService {
           data: {
             serviceId,
             tagId: tag.id,
+            userId,
           },
         });
       }

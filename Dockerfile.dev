@@ -11,4 +11,4 @@ RUN npx prisma generate
 
 RUN npm install -D ts-node typescript
 
-CMD ["npx", "ts-node", "src/index.ts"]
+CMD ["npm", "run", "dev"]

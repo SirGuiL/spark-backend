@@ -17,6 +17,13 @@ router.post(
 );
 
 router.get(
+  "/not-finished",
+  // @ts-ignore
+  [authenticateJWT],
+  carsController.findNotFinishedCarsServices.bind(carsController)
+);
+
+router.get(
   "/",
   // @ts-ignore
   [authenticateJWT],

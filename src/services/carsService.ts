@@ -11,6 +11,10 @@ type findUniqueByIdData = {
   id: string;
 };
 
+type fetchAllData = {
+  userId: string;
+};
+
 type updateData = {
   id: string;
   plate: string;
@@ -21,6 +25,11 @@ type updateData = {
 type addRegisterData = {
   carId: string;
   serviceId: string;
+  userId: string;
+};
+
+type findNotFinishedCarsServicesData = {
+  userId: string;
 };
 
 export class CarsService {
@@ -44,8 +53,14 @@ export class CarsService {
     });
   }
 
-  async fetchAll() {
-    return await this.db.cars.findMany();
+  async fetchAll(data: fetchAllData) {
+    const { userId } = data;
+
+    return await this.db.cars.findMany({
+      where: {
+        userId,
+      },
+    });
   }
 
   async update(data: updateData) {
@@ -70,12 +85,28 @@ export class CarsService {
   }
 
   async addRegister(data: addRegisterData) {
-    const { carId, serviceId } = data;
+    const { carId, serviceId, userId } = data;
 
-    this.db.carsServices.create({
+    return await this.db.carsServices.create({
       data: {
         carId,
         serviceId,
+        userId,
+      },
+    });
+  }
+
+  async findNotFinishedCarsServices(data: findNotFinishedCarsServicesData) {
+    const { userId } = data;
+
+    return await this.db.carsServices.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        car: true,
+        services: true,
+        user: true,
       },
     });
   }

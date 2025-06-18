@@ -41,7 +41,11 @@ export class ServicesController {
       });
 
       if (tags) {
-        await servicesService.addTags({ serviceId: service.id, tags });
+        await servicesService.addTags({
+          userId: user.id,
+          serviceId: service.id,
+          tags,
+        });
       }
 
       res.status(201).json(service);
@@ -50,10 +54,20 @@ export class ServicesController {
     }
   }
 
-  async fetchAll(_: Request, res: Response) {
+  async fetchAll(req: Request, res: Response) {
     try {
+      // @ts-ignore
+      const user = req.user;
+
+      if (!user) {
+        res.status(400).json({ error: "User not found" });
+        return;
+      }
+
       const servicesService = new ServicesService(this.prisma);
-      const services = await servicesService.fetchAll();
+      const services = await servicesService.fetchAll({
+        userId: user.id,
+      });
 
       res.status(200).json(services);
     } catch (error) {
@@ -62,6 +76,14 @@ export class ServicesController {
   }
 
   async findUniqueById(req: Request, res: Response) {
+    // @ts-ignore
+    const { user } = req;
+
+    if (!user) {
+      res.status(400).json({ error: "User not found" });
+      return;
+    }
+
     const id = req.params.id;
 
     if (!id) {
@@ -70,7 +92,10 @@ export class ServicesController {
 
     try {
       const servicesService = new ServicesService(this.prisma);
-      const service = await servicesService.findUniqueById({ id });
+      const service = await servicesService.findUniqueById({
+        id,
+        userId: user.id,
+      });
 
       if (!service) {
         return res.status(404).json({ error: "service not found" });
@@ -89,12 +114,7 @@ export class ServicesController {
       return res.status(400).json({ error: "Id is required" });
     }
 
-    const { amount, name, userId } = req.body;
-    const requiredFields = { amount, name, userId };
-
-    if (!Validators.validateRequiredFields(res, requiredFields)) {
-      return;
-    }
+    const { amount, name } = req.body;
 
     try {
       const servicesService = new ServicesService(this.prisma);
@@ -102,7 +122,6 @@ export class ServicesController {
         id,
         amount,
         name,
-        userId,
       });
 
       res.status(200).json(updatedService);

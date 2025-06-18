@@ -21,7 +21,7 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    command: npx ts-node src/index.ts
+    command: npm run dev
     ports:
       - "3000:3000"
     depends_on:
