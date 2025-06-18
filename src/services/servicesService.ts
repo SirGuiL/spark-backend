@@ -47,39 +47,68 @@ export class ServicesService {
   }
 
   async fetchAll({ userId }: fetchAllData) {
-    return await this.db.servicesTags.findMany({
+    const services = await this.db.services.findMany({
       where: { userId },
       include: {
-        service: {
-          omit: {
-            userId: true,
+        ServicesTags: {
+          include: {
+            tag: {
+              omit: {
+                userId: true,
+              },
+            },
           },
-        },
-        tag: {
           omit: {
+            id: true,
+            serviceId: true,
             userId: true,
+            tagId: true,
           },
         },
       },
     });
+
+    return services.map((service) => ({
+      id: service.id,
+      name: service.name,
+      amount: service.amount,
+      tags: service.ServicesTags.map((st) => st.tag),
+    }));
   }
 
   async findUniqueById({ id, userId }: findUniqueByIdData) {
-    return await this.db.servicesTags.findMany({
-      where: { userId, serviceId: id },
+    const services = await this.db.services.findUnique({
+      where: { userId, id },
       include: {
-        service: {
-          omit: {
-            userId: true,
+        ServicesTags: {
+          include: {
+            tag: {
+              omit: {
+                userId: true,
+              },
+            },
           },
-        },
-        tag: {
           omit: {
+            id: true,
+            serviceId: true,
             userId: true,
+            tagId: true,
           },
         },
       },
+      omit: {
+        userId: true,
+      },
     });
+
+    const result = {
+      ...services,
+      tags: services?.ServicesTags.map((st) => st.tag),
+    };
+
+    delete result.ServicesTags;
+
+    return result;
   }
 
   async update(data: updateData) {

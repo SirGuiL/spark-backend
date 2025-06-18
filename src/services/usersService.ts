@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { $Enums, PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 type createData = {
@@ -6,6 +6,7 @@ type createData = {
   password: string;
   name: string;
   accountId: string;
+  role?: $Enums.Role;
 };
 
 type updateData = {
@@ -27,12 +28,12 @@ export class UsersService {
   }
 
   async create(data: createData) {
-    const { email, password, name, accountId } = data;
+    const { email, password, name, accountId, role } = data;
 
     const encodedPassword = await bcrypt.hash(password, 10);
 
     return await this.db.users.create({
-      data: { email, password: encodedPassword, name, accountId },
+      data: { email, password: encodedPassword, name, accountId, role },
     });
   }
 
@@ -48,6 +49,12 @@ export class UsersService {
     return await this.db.users.update({
       where: { id },
       data: { email, password, name },
+    });
+  }
+
+  async delete({ id }: MeData) {
+    return await this.db.users.delete({
+      where: { id },
     });
   }
 

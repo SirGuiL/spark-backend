@@ -25,6 +25,13 @@ router.put(
   usersController.update.bind(usersController)
 );
 
+router.delete(
+  "/:id",
+  // @ts-ignore
+  [authenticateJWT],
+  usersController.delete.bind(usersController)
+);
+
 router.patch(
   "/:id/activate",
   // @ts-ignore

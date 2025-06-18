@@ -13,7 +13,7 @@ export class UsersController {
 
   async create(req: Request, res: Response) {
     try {
-      const { email, password, name, accountId } = req.body;
+      const { email, password, name, accountId, role } = req.body;
       const requiredFields = { email, password, name, accountId };
 
       if (!Validators.validateRequiredFields(res, requiredFields)) {
@@ -26,9 +26,38 @@ export class UsersController {
         password,
         name,
         accountId,
+        role,
       });
 
       res.status(201).json(user);
+    } catch (error) {
+      res.status(400).json({ error });
+    }
+  }
+
+  async delete(req: Request, res: Response) {
+    const id = req.params.id;
+
+    // @ts-ignore
+    const { user } = req;
+
+    if (!user) {
+      return res.status(400).json({ error: "User not found" });
+    }
+
+    if (!id) {
+      return res.status(400).json({ error: "Id is required" });
+    }
+
+    if (user.role !== "ADMIN") {
+      return res.status(400).json({ error: "Only admin can delete users" });
+    }
+
+    try {
+      const usersService = new UsersService(this.prisma);
+      await usersService.delete({ id });
+
+      res.status(204).json({ message: "User deleted successfully" });
     } catch (error) {
       res.status(400).json({ error });
     }

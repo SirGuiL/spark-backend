@@ -108,6 +108,11 @@ export class CarsService {
         services: true,
         user: true,
       },
+      omit: {
+        carId: true,
+        serviceId: true,
+        userId: true,
+      },
     });
   }
 }
