@@ -22,14 +22,22 @@ export class AuthController {
       const authService = new AuthService(this.prisma);
       const token = await authService.login({ email, password });
 
-      res.status(200).json({ refreshToken: token });
+      res.cookie("refreshToken", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+        path: "/",
+      });
+
+      res.status(200).json({ message: "Logado com sucesso!" });
     } catch (error) {
       res.status(400).json({ error });
     }
   }
 
   async refresh(req: Request, res: Response) {
-    const refreshToken = req.body.refreshToken;
+    const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
       return res.status(401).json({ error: "Unauthorized" });

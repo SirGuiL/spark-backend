@@ -9,6 +9,4 @@ COPY . .
 
 RUN npx prisma generate
 
-RUN npm install -D ts-node typescript
-
 CMD ["npm", "run", "dev"]

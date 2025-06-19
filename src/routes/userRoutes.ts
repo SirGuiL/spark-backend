@@ -12,7 +12,7 @@ const usersController = new UsersController(prisma);
 router.post("/", usersController.create.bind(usersController));
 
 router.get(
-  "/me",
+  "/",
   // @ts-ignore
   [authenticateJWT],
   usersController.getByToken.bind(usersController)
