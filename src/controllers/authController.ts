@@ -54,4 +54,16 @@ export class AuthController {
       res.status(400).json({ error });
     }
   }
+
+  async logout(_: Request, res: Response) {
+    res.cookie("refreshToken", "", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+      expires: new Date(0),
+    });
+
+    res.status(200).json({ message: "Logout realizado com sucesso!" });
+  }
 }

@@ -11,5 +11,6 @@ const authController = new AuthController(prisma);
 router.post("/login", authController.login.bind(authController));
 // @ts-ignore
 router.post("/refresh", authController.refresh.bind(authController));
+router.post("/logout", authController.logout.bind(authController));
 
 export { router };
