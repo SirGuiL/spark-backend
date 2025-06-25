@@ -48,7 +48,10 @@ export class ServicesController {
         });
       }
 
-      res.status(201).json(service);
+      res.status(201).json({
+        ...service,
+        tags,
+      });
     } catch (error: any) {
       res.status(400).json({ error });
     }
