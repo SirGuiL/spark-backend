@@ -73,6 +73,8 @@ export class ServicesService {
       name: service.name,
       amount: service.amount,
       tags: service.ServicesTags.map((st) => st.tag),
+      createdAt: service.createdAt,
+      updatedAt: service.updatedAt,
     }));
   }
 
