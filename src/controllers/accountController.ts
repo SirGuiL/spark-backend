@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { Validators } from "../utils/validators";
 import { AccountService } from "../services/accountService";
+import { UsersService } from "../services/usersService";
 
 export class AccountController {
   prisma: PrismaClient;
@@ -52,10 +53,7 @@ export class AccountController {
         return res.status(400).json({ error: "Account is inactive" });
       }
 
-      res.status(200).json({
-        id: account.id,
-        name: account.name,
-      });
+      res.status(200).json(account);
     } catch (error) {
       res.status(400).json({ error });
     }
@@ -64,13 +62,24 @@ export class AccountController {
   async update(req: Request, res: Response) {
     const id = req.params.id;
 
+    // @ts-ignore
+    const user = req.user;
+
     if (!id) {
       return res.status(400).json({ error: "Id is required" });
     }
 
+    if (id !== user?.accountId) {
+      return res.status(400).json({ error: "Unauthorized" });
+    }
+
+    if (user?.role !== "ADMIN") {
+      return res.status(400).json({ error: "Only admin can update accounts" });
+    }
+
     try {
-      const { name } = req.body;
-      const requiredFields = { name };
+      const { name, cnpj } = req.body;
+      const requiredFields = { name, cnpj };
 
       if (!Validators.validateRequiredFields(res, requiredFields)) {
         return;
@@ -80,6 +89,7 @@ export class AccountController {
       const account = await accountService.update({
         id,
         name,
+        cnpj,
       });
 
       res.status(200).json(account);
@@ -149,6 +159,30 @@ export class AccountController {
       res.status(200).json({
         message: "Account deactivated successfully",
       });
+    } catch (error) {
+      res.status(400).json({ error });
+    }
+  }
+
+  async fetchUsers(req: Request, res: Response) {
+    // @ts-ignore
+    const user = req.user;
+
+    if (!user) {
+      return res.status(400).json({ error: "User not found" });
+    }
+
+    if (user.role !== "ADMIN") {
+      return res.status(400).json({ error: "Only admin can fetch users" });
+    }
+
+    try {
+      const usersService = new UsersService(this.prisma);
+      const users = await usersService.fetchAllByAccountId({
+        accountId: user.accountId,
+      });
+
+      res.status(200).json(users);
     } catch (error) {
       res.status(400).json({ error });
     }

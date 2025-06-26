@@ -25,10 +25,10 @@ export class AccountService {
     });
   }
 
-  async update({ id, name }: { id: string; name: string }) {
+  async update({ id, name, cnpj }: { id: string; name: string; cnpj: string }) {
     return await this.db.accounts.update({
       where: { id },
-      data: { name },
+      data: { name, cnpj },
     });
   }
 

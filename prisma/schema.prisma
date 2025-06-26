@@ -96,6 +96,7 @@ model Users {
 model Accounts {
   id        String   @id @default(uuid())
   name      String?
+  cnpj      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)

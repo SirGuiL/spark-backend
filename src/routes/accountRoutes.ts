@@ -39,4 +39,11 @@ router.patch(
   accountController.deactivate.bind(accountController)
 );
 
+router.get(
+  "/users",
+  // @ts-ignore
+  [authenticateJWT],
+  accountController.fetchUsers.bind(accountController)
+);
+
 export { router };

@@ -71,4 +71,10 @@ export class UsersService {
       data: { isActive: false },
     });
   }
+
+  async fetchAllByAccountId({ accountId }: { accountId: string }) {
+    return await this.db.users.findMany({
+      where: { accountId },
+    });
+  }
 }
