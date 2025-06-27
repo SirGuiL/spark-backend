@@ -14,14 +14,14 @@ export class UsersController {
   async create(req: Request, res: Response) {
     try {
       const { email, password, name, accountId, role } = req.body;
-      const requiredFields = { email, password, name, accountId };
+      const requiredFields = { email, name, accountId };
 
       if (!Validators.validateRequiredFields(res, requiredFields)) {
         return;
       }
 
       const usersService = new UsersService(this.prisma);
-      const user = await usersService.create({
+      await usersService.create({
         email,
         password,
         name,
@@ -29,7 +29,7 @@ export class UsersController {
         role,
       });
 
-      res.status(201).json(user);
+      res.status(201).json({ message: "User created successfully" });
     } catch (error) {
       res.status(400).json({ error });
     }
