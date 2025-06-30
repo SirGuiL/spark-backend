@@ -80,6 +80,7 @@ export class TagsController {
   async fetchAll(req: Request, res: Response) {
     // @ts-ignore
     const { user } = req;
+    const { page, perPage } = req.query;
 
     if (!user) {
       res.status(400).json({ error: "User not found" });
@@ -87,16 +88,15 @@ export class TagsController {
     }
 
     const tagsService = new TagsService(this.prisma);
-    const tags = await tagsService.fetchAll({
+    const { tags, metadata } = await tagsService.fetchAll({
       userId: user.id,
+      page: page ? Number(page) : undefined,
+      perPage: perPage ? Number(perPage) : undefined,
     });
 
-    res.status(200).json(
-      tags.map((tag) => ({
-        id: tag.id,
-        name: tag.name,
-        createdAt: tag.createdAt,
-      }))
-    );
+    res.status(200).json({
+      tags,
+      metadata,
+    });
   }
 }

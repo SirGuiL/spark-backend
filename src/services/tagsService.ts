@@ -15,6 +15,8 @@ type updateData = deleteData & {
 
 type fetchAllData = {
   userId: string;
+  page?: number;
+  perPage?: number;
 };
 
 export class TagsService {
@@ -70,12 +72,33 @@ export class TagsService {
   }
 
   async fetchAll(data: fetchAllData) {
-    const { userId } = data;
+    const { userId, page = 1, perPage = 10 } = data;
 
-    return await this.db.tags.findMany({
+    const tags = await this.db.tags.findMany({
       where: {
         userId,
       },
+      skip: (page - 1) * 10,
+      take: perPage,
+      orderBy: {
+        createdAt: "desc",
+      },
+      omit: {
+        userId: true,
+      },
     });
+
+    const count = await this.db.tags.count({
+      where: { userId },
+    });
+
+    return {
+      tags,
+      metadata: {
+        count,
+        page,
+        perPage,
+      },
+    };
   }
 }

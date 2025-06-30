@@ -30,6 +30,7 @@ type addTagsData = {
 type fetchAllData = {
   userId: string;
   page?: number;
+  perPage?: number;
 };
 
 export class ServicesService {
@@ -47,7 +48,7 @@ export class ServicesService {
     });
   }
 
-  async fetchAll({ userId, page = 1 }: fetchAllData) {
+  async fetchAll({ userId, page = 1, perPage = 10 }: fetchAllData) {
     const services = await this.db.services.findMany({
       where: { userId },
       include: {
@@ -68,7 +69,7 @@ export class ServicesService {
         },
       },
       skip: (page - 1) * 10,
-      take: 10,
+      take: perPage,
       orderBy: {
         createdAt: "desc",
       },
@@ -92,8 +93,11 @@ export class ServicesService {
 
     return {
       services: formattedServices,
-      count,
-      page,
+      metadata: {
+        count,
+        page,
+        perPage,
+      },
     };
   }
 
