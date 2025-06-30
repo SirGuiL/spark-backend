@@ -62,6 +62,8 @@ export class ServicesController {
       // @ts-ignore
       const user = req.user;
 
+      const { page } = req.query;
+
       if (!user) {
         res.status(400).json({ error: "User not found" });
         return;
@@ -70,6 +72,7 @@ export class ServicesController {
       const servicesService = new ServicesService(this.prisma);
       const services = await servicesService.fetchAll({
         userId: user.id,
+        page: Number(page),
       });
 
       res.status(200).json(services);
