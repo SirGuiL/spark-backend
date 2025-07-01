@@ -17,12 +17,13 @@ model Cars {
   id           String         @id @default(uuid())
   model        String
   plate        String         @unique
-  brand        String
   userId       String
+  brandId      String
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   services     Services[]
   user         Users          @relation(fields: [userId], references: [id])
+  brand        Brand          @relation(fields: [brandId], references: [id])
   CarsServices CarsServices[]
 }
 
@@ -53,6 +54,16 @@ model CarsServices {
   car      Cars     @relation(fields: [carId], references: [id])
   user     Users    @relation(fields: [userId], references: [id])
   services Services @relation(fields: [serviceId], references: [id])
+}
+
+model Brand {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  type      Type     @default(cars)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Cars      Cars[]
 }
 
 model Tags {
@@ -106,4 +117,10 @@ model Accounts {
 enum Role {
   USER
   ADMIN
+}
+
+enum Type {
+  cars
+  motorcycles
+  trucks
 }

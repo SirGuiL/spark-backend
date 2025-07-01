@@ -11,6 +11,7 @@ import {
   userRoutes,
   accountRoutes,
   tagsRoutes,
+  brandsRoutes,
 } from "./routes";
 
 dotenv.config();
@@ -33,6 +34,7 @@ app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/account", accountRoutes);
 app.use("/tags", tagsRoutes);
+app.use("/brands", brandsRoutes);
 
 // @ts-ignore
 app.use((err, req, res, next) => {
