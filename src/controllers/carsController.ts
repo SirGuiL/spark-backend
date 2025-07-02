@@ -3,6 +3,9 @@ import { PrismaClient } from "@prisma/client";
 
 import { CarsService } from "../services/carsService";
 import { Validators } from "../utils/validators";
+import { redis } from "../lib/redis";
+import { FipeService } from "../services/fipeService";
+import { ArraysUtils } from "../utils/arrays";
 
 export class CarsController {
   prisma: PrismaClient;
@@ -178,5 +181,66 @@ export class CarsController {
     });
 
     res.status(200).json(notFinishedServices);
+  }
+
+  async fetchAllCarsFromFipeAPI(req: Request, res: Response) {
+    // @ts-ignore
+    const user = req.user;
+
+    const { brandId, vehicleType, page, limit } = req.query;
+
+    const requiredFields = { brandId, vehicleType };
+
+    if (!Validators.validateRequiredFields(res, requiredFields)) {
+      return;
+    }
+
+    if (!user) {
+      res.status(400).json({ error: "User not found" });
+      return;
+    }
+
+    const cacheKey = `fipe-cars:page=${page || 1}:limit=${
+      limit || 10
+    }:brandId=${brandId}:vehicleType=${vehicleType}`;
+    const cached = await redis.get(cacheKey);
+
+    if (cached) {
+      console.log(`[CACHED] ${req.originalUrl}`);
+      return res.status(200).json(JSON.parse(cached));
+    }
+
+    const baseUrl = process.env.FIPE_URL;
+    const fipeToken = process.env.FIPE_TOKEN;
+
+    if (!baseUrl || !fipeToken) {
+      throw new Error("Nenhuma URL ou token de acesso ao Fipe foi fornecido.");
+    }
+
+    const fipeService = new FipeService(baseUrl, fipeToken);
+    const cars = await fipeService.getCarsByBrand({
+      brandId: Number(brandId),
+      vehicleType: vehicleType as "cars" | "motorcycles" | "trucks",
+    });
+
+    const response = ArraysUtils.paginate({
+      items: cars,
+      limit: limit ? Number(limit) : 10,
+      page: page ? Number(page) : 1,
+    });
+
+    const formattedResponse = {
+      cars: response.data,
+      metadata: response.pagination,
+    };
+
+    await redis.set(
+      cacheKey,
+      JSON.stringify(formattedResponse),
+      "EX",
+      60 * 60 * 24 * 7
+    ); // 7 days
+
+    res.status(200).json(formattedResponse);
   }
 }

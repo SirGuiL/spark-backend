@@ -24,6 +24,13 @@ router.get(
 );
 
 router.get(
+  "/fipe",
+  // @ts-ignore
+  [authenticateJWT],
+  carsController.fetchAllCarsFromFipeAPI.bind(carsController)
+);
+
+router.get(
   "/",
   // @ts-ignore
   [authenticateJWT],

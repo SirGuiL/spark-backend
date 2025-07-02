@@ -80,7 +80,7 @@ export class TagsController {
   async fetchAll(req: Request, res: Response) {
     // @ts-ignore
     const { user } = req;
-    const { page, perPage } = req.query;
+    const { page, limit } = req.query;
 
     if (!user) {
       res.status(400).json({ error: "User not found" });
@@ -91,7 +91,7 @@ export class TagsController {
     const { tags, metadata } = await tagsService.fetchAll({
       userId: user.id,
       page: page ? Number(page) : undefined,
-      perPage: perPage ? Number(perPage) : undefined,
+      limit: limit ? Number(limit) : undefined,
     });
 
     res.status(200).json({

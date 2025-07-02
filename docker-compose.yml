@@ -14,6 +14,14 @@ services:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
 
+  redis:
+    image: redis:7-alpine
+    container_name: spark-redis
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    restart: unless-stopped
+
   app:
     build:
       context: .
@@ -26,6 +34,7 @@ services:
       - "3000:3000"
     depends_on:
       - postgres
+      - redis
 
 volumes:
   pgdata:

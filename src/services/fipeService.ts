@@ -11,6 +11,11 @@ type fipeBrand = {
   name: string;
 };
 
+type getCarsByBrandType = {
+  vehicleType: "cars" | "motorcycles" | "trucks";
+  brandId: number;
+};
+
 export class FipeService {
   api: AxiosInstance;
 
@@ -30,5 +35,13 @@ export class FipeService {
     const response = await this.api(`${type}/brands`);
 
     return response.data as fipeBrand[];
+  }
+
+  async getCarsByBrand(data: getCarsByBrandType) {
+    const { brandId, vehicleType } = data;
+
+    const response = await this.api(`${vehicleType}/brands/${brandId}/models`);
+
+    return response.data;
   }
 }

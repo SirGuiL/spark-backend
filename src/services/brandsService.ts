@@ -3,6 +3,9 @@ import { FipeService } from "./fipeService";
 
 type fetchAllData = {
   type: "cars" | "motorcycles" | "trucks";
+  page: number;
+  limit: number;
+  query: string;
 };
 
 type createOrUpdateData = {
@@ -18,12 +21,40 @@ export class BrandsService {
     this.db = prisma;
   }
 
-  async fetchAll({ type }: fetchAllData) {
-    return await this.db.brand.findMany({
+  async fetchAll({ type, page, limit, query }: fetchAllData) {
+    const response = await this.db.brand.findMany({
       where: {
         type,
+        OR: [
+          { name: { contains: query, mode: "insensitive" } },
+          { code: { contains: query, mode: "insensitive" } },
+        ],
+      },
+      skip: (page - 1) * 10,
+      take: limit,
+      orderBy: {
+        createdAt: "desc",
       },
     });
+
+    const count = await this.db.brand.count({
+      where: {
+        type,
+        OR: [
+          { name: { contains: query, mode: "insensitive" } },
+          { code: { contains: query, mode: "insensitive" } },
+        ],
+      },
+    });
+
+    return {
+      brands: response,
+      metadata: {
+        count,
+        page,
+        limit,
+      },
+    };
   }
 
   async createOrUpdate(data: createOrUpdateData) {
