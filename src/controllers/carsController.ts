@@ -19,8 +19,14 @@ export class CarsController {
       // @ts-ignore
       const { user } = req;
 
-      const { plate, model, brandId, serviceId } = req.body;
-      const requiredFields = { plate, model, brandId, serviceId };
+      const { plate, modelCode, modelName, brandId, serviceId } = req.body;
+      const requiredFields = {
+        plate,
+        modelCode,
+        modelName,
+        brandId,
+        serviceId,
+      };
 
       if (!user) {
         res.status(400).json({
@@ -61,7 +67,8 @@ export class CarsController {
 
       const car = await carsService.create({
         plate,
-        model,
+        modelCode,
+        modelName,
         brandId,
         userId: user.id,
       });
@@ -157,8 +164,8 @@ export class CarsController {
   async update(req: Request, res: Response) {
     const id = req.params.id;
 
-    const { plate, model, brandId } = req.body;
-    const requiredFields = { plate, model, brandId };
+    const { plate, modelCode, modelName, brandId } = req.body;
+    const requiredFields = { plate, modelCode, modelName, brandId };
 
     if (!id) {
       return res.status(400).json({ error: "Id is required" });
@@ -172,7 +179,8 @@ export class CarsController {
       const carsService = new CarsService(this.prisma);
       const updatedCar = await carsService.update({
         plate,
-        model,
+        modelCode,
+        modelName,
         brandId,
         id,
       });
@@ -215,6 +223,25 @@ export class CarsController {
     });
 
     res.status(200).json(notFinishedServices);
+  }
+
+  async deleteNotFinishedCarsServices(req: Request, res: Response) {
+    // @ts-ignore
+    const user = req.user;
+    const id = req.params.id;
+
+    if (!user) {
+      res.status(400).json({ error: "User not found" });
+      return;
+    }
+
+    const carsService = new CarsService(this.prisma);
+    await carsService.deleteNotFinishedCarsServices({
+      userId: user.id,
+      id,
+    });
+
+    res.status(204).json({ message: "Register deleted successfully" });
   }
 
   async fetchAllCarsFromFipeAPI(req: Request, res: Response) {

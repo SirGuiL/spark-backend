@@ -23,6 +23,13 @@ router.get(
   carsController.findNotFinishedCarsServices.bind(carsController)
 );
 
+router.delete(
+  "/not-finished/:id",
+  // @ts-ignore
+  [authenticateJWT],
+  carsController.deleteNotFinishedCarsServices.bind(carsController)
+);
+
 router.get(
   "/fipe",
   // @ts-ignore

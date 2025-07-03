@@ -15,7 +15,8 @@ datasource db {
 
 model Cars {
   id           String         @id @default(uuid())
-  model        String
+  modelCode    String
+  modelName    String
   plate        String         @unique
   userId       String
   brandId      String

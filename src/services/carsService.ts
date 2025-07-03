@@ -2,7 +2,8 @@ import { PrismaClient } from "@prisma/client";
 
 type createData = {
   plate: string;
-  model: string;
+  modelCode: string;
+  modelName: string;
   brandId: string;
   userId: string;
 };
@@ -18,7 +19,8 @@ type fetchAllData = {
 type updateData = {
   id: string;
   plate: string;
-  model: string;
+  modelCode: string;
+  modelName: string;
   brandId: string;
 };
 
@@ -30,6 +32,11 @@ type addRegisterData = {
 
 type findNotFinishedCarsServicesData = {
   userId: string;
+};
+
+type deleteNotFinishedCarsServicesData = {
+  userId: string;
+  id: string;
 };
 
 type findCarByPlateType = {
@@ -69,11 +76,11 @@ export class CarsService {
   }
 
   async update(data: updateData) {
-    const { id, plate, model, brandId } = data;
+    const { id, plate, modelCode, modelName, brandId } = data;
 
     return await this.db.cars.update({
       where: { id },
-      data: { plate, model, brandId },
+      data: { plate, modelCode, modelName, brandId },
     });
   }
 
@@ -92,7 +99,7 @@ export class CarsService {
 
     const userIds = users.map((user) => user.id);
 
-    return await this.db.cars.findUniqueOrThrow({
+    return await this.db.cars.findUnique({
       where: { plate, userId: { in: userIds } },
       include: {
         brand: {
@@ -125,14 +132,37 @@ export class CarsService {
         userId,
       },
       include: {
-        car: true,
-        services: true,
-        user: true,
+        car: {
+          omit: {
+            userId: true,
+          },
+        },
+        services: {
+          omit: {
+            userId: true,
+          },
+        },
+        user: {
+          omit: {
+            password: true,
+          },
+        },
       },
       omit: {
         carId: true,
         serviceId: true,
         userId: true,
+      },
+    });
+  }
+
+  async deleteNotFinishedCarsServices(data: deleteNotFinishedCarsServicesData) {
+    const { userId, id } = data;
+
+    return await this.db.carsServices.delete({
+      where: {
+        id,
+        userId,
       },
     });
   }
