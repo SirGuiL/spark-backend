@@ -62,7 +62,7 @@ export class ServicesController {
       // @ts-ignore
       const user = req.user;
 
-      const { page } = req.query;
+      const { page, query } = req.query;
 
       if (!user) {
         res.status(400).json({ error: "User not found" });
@@ -73,6 +73,7 @@ export class ServicesController {
       const services = await servicesService.fetchAll({
         userId: user.id,
         page: Number(page),
+        query: String(query),
       });
 
       res.status(200).json(services);

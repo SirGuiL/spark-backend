@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 type createData = {
   plate: string;
   model: string;
-  brand: string;
+  brandId: string;
   userId: string;
 };
 
@@ -19,7 +19,7 @@ type updateData = {
   id: string;
   plate: string;
   model: string;
-  brand: string;
+  brandId: string;
 };
 
 type addRegisterData = {
@@ -30,6 +30,11 @@ type addRegisterData = {
 
 type findNotFinishedCarsServicesData = {
   userId: string;
+};
+
+type findCarByPlateType = {
+  plate: string;
+  accountId: string;
 };
 
 export class CarsService {
@@ -64,11 +69,11 @@ export class CarsService {
   }
 
   async update(data: updateData) {
-    const { id, plate, model, brand } = data;
+    const { id, plate, model, brandId } = data;
 
     return await this.db.cars.update({
       where: { id },
-      data: { plate, model, brand },
+      data: { plate, model, brandId },
     });
   }
 
@@ -78,9 +83,25 @@ export class CarsService {
     });
   }
 
-  async findCarByPlate({ plate }: { plate: string }) {
-    return await this.db.cars.findUnique({
-      where: { plate },
+  async findCarByPlate({ plate, accountId }: findCarByPlateType) {
+    const users = await this.db.users.findMany({
+      where: {
+        accountId,
+      },
+    });
+
+    const userIds = users.map((user) => user.id);
+
+    return await this.db.cars.findUniqueOrThrow({
+      where: { plate, userId: { in: userIds } },
+      include: {
+        brand: {
+          omit: {
+            updatedAt: true,
+            createdAt: true,
+          },
+        },
+      },
     });
   }
 

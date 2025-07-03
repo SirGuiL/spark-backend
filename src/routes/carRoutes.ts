@@ -44,6 +44,12 @@ router.get(
   carsController.findUniqueById.bind(carsController)
 );
 
+router.get(
+  "/:plate/data", // @ts-ignore
+  [authenticateJWT],
+  carsController.findUniqueByPlate.bind(carsController)
+);
+
 router.put(
   "/:id",
   // @ts-ignore

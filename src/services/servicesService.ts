@@ -31,6 +31,7 @@ type fetchAllData = {
   userId: string;
   page?: number;
   limit?: number;
+  query?: string;
 };
 
 export class ServicesService {
@@ -48,9 +49,9 @@ export class ServicesService {
     });
   }
 
-  async fetchAll({ userId, page = 1, limit = 10 }: fetchAllData) {
+  async fetchAll({ userId, page = 1, limit = 10, query }: fetchAllData) {
     const services = await this.db.services.findMany({
-      where: { userId },
+      where: { userId, name: { contains: query } },
       include: {
         ServicesTags: {
           include: {

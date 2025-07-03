@@ -11,6 +11,11 @@ type fipeBrand = {
   name: string;
 };
 
+type fipeCar = {
+  code: string;
+  name: string;
+};
+
 type getCarsByBrandType = {
   vehicleType: "cars" | "motorcycles" | "trucks";
   brandId: number;
@@ -42,6 +47,6 @@ export class FipeService {
 
     const response = await this.api(`${vehicleType}/brands/${brandId}/models`);
 
-    return response.data;
+    return response.data as fipeCar[];
   }
 }

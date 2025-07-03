@@ -19,8 +19,8 @@ export class CarsController {
       // @ts-ignore
       const { user } = req;
 
-      const { plate, model, brand, serviceId } = req.body;
-      const requiredFields = { plate, model, brand, serviceId };
+      const { plate, model, brandId, serviceId } = req.body;
+      const requiredFields = { plate, model, brandId, serviceId };
 
       if (!user) {
         res.status(400).json({
@@ -39,7 +39,10 @@ export class CarsController {
       }
 
       const carsService = new CarsService(this.prisma);
-      const carWithSamePlate = await carsService.findCarByPlate({ plate });
+      const carWithSamePlate = await carsService.findCarByPlate({
+        plate,
+        accountId: user.accountId,
+      });
 
       if (carWithSamePlate) {
         const register = await carsService.addRegister({
@@ -59,7 +62,7 @@ export class CarsController {
       const car = await carsService.create({
         plate,
         model,
-        brand,
+        brandId,
         userId: user.id,
       });
 
@@ -99,6 +102,37 @@ export class CarsController {
     }
   }
 
+  async findUniqueByPlate(req: Request, res: Response) {
+    // @ts-ignore
+    const user = req.user;
+    const plate = req.params.plate;
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    if (!plate) {
+      return res.status(400).json({ error: "plate is required" });
+    }
+
+    try {
+      const carsService = new CarsService(this.prisma);
+      const car = await carsService.findCarByPlate({
+        plate,
+        accountId: user.accountId,
+      });
+
+      if (!car) {
+        return res.status(404).json({ error: "Car not found" });
+      }
+
+      res.status(200).json(car);
+    } catch (error) {
+      res.status(400).json({ error });
+    }
+  }
+
   async fetchAll(req: Request, res: Response) {
     try {
       // @ts-ignore
@@ -123,8 +157,8 @@ export class CarsController {
   async update(req: Request, res: Response) {
     const id = req.params.id;
 
-    const { plate, model, brand } = req.body;
-    const requiredFields = { plate, model, brand };
+    const { plate, model, brandId } = req.body;
+    const requiredFields = { plate, model, brandId };
 
     if (!id) {
       return res.status(400).json({ error: "Id is required" });
@@ -139,7 +173,7 @@ export class CarsController {
       const updatedCar = await carsService.update({
         plate,
         model,
-        brand,
+        brandId,
         id,
       });
 
@@ -187,7 +221,7 @@ export class CarsController {
     // @ts-ignore
     const user = req.user;
 
-    const { brandId, vehicleType, page, limit } = req.query;
+    const { brandId, vehicleType, page, limit, query } = req.query;
 
     const requiredFields = { brandId, vehicleType };
 
@@ -202,7 +236,7 @@ export class CarsController {
 
     const cacheKey = `fipe-cars:page=${page || 1}:limit=${
       limit || 10
-    }:brandId=${brandId}:vehicleType=${vehicleType}`;
+    }:brandId=${brandId}:vehicleType=${vehicleType}:query=${query}`;
     const cached = await redis.get(cacheKey);
 
     if (cached) {
@@ -223,8 +257,15 @@ export class CarsController {
       vehicleType: vehicleType as "cars" | "motorcycles" | "trucks",
     });
 
+    const filteredCars = cars.filter((car) => {
+      return (
+        car.name.toLowerCase().includes(String(query).toLowerCase()) ||
+        car.code.toLowerCase().includes(String(query).toLowerCase())
+      );
+    });
+
     const response = ArraysUtils.paginate({
-      items: cars,
+      items: filteredCars,
       limit: limit ? Number(limit) : 10,
       page: page ? Number(page) : 1,
     });

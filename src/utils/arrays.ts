@@ -17,7 +17,7 @@ export class ArraysUtils {
       pagination: {
         page,
         limit,
-        total: items.length,
+        count: items.length,
         totalPages,
       },
     };

@@ -15,7 +15,7 @@ describe("ArraysUtils", () => {
       expect(result.pagination).toEqual({
         page: 2,
         limit: 5,
-        total: 10,
+        count: 10,
         totalPages: 2,
       });
     });
@@ -31,7 +31,7 @@ describe("ArraysUtils", () => {
       expect(result.pagination).toEqual({
         page: 3,
         limit: 5,
-        total: 10,
+        count: 10,
         totalPages: 2,
       });
     });
