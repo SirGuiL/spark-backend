@@ -211,6 +211,7 @@ export class CarsController {
   async findNotFinishedCarsServices(req: Request, res: Response) {
     // @ts-ignore
     const user = req.user;
+    const { page, limit, query } = req.query;
 
     if (!user) {
       res.status(400).json({ error: "User not found" });
@@ -220,6 +221,9 @@ export class CarsController {
     const carsService = new CarsService(this.prisma);
     const notFinishedServices = await carsService.findNotFinishedCarsServices({
       userId: user.id,
+      page: page ? Number(page) : 1,
+      limit: limit ? Number(limit) : 10,
+      query: query ? String(query) : "",
     });
 
     res.status(200).json(notFinishedServices);

@@ -32,6 +32,9 @@ type addRegisterData = {
 
 type findNotFinishedCarsServicesData = {
   userId: string;
+  page: number;
+  limit: number;
+  query: string;
 };
 
 type deleteNotFinishedCarsServicesData = {
@@ -125,11 +128,33 @@ export class CarsService {
   }
 
   async findNotFinishedCarsServices(data: findNotFinishedCarsServicesData) {
-    const { userId } = data;
+    const { userId, limit, page, query } = data;
 
-    return await this.db.carsServices.findMany({
+    const carsServices = await this.db.carsServices.findMany({
       where: {
         userId,
+        car: {
+          OR: [
+            {
+              modelName: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+            {
+              modelCode: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+            {
+              plate: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
       },
       include: {
         car: {
@@ -153,7 +178,49 @@ export class CarsService {
         serviceId: true,
         userId: true,
       },
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: {
+        createdAt: "desc",
+      },
     });
+
+    const count = await this.db.carsServices.count({
+      where: {
+        userId,
+        car: {
+          OR: [
+            {
+              modelName: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+            {
+              modelCode: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+            {
+              plate: {
+                contains: query,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    return {
+      carsServices,
+      metadata: {
+        count,
+        page,
+        limit,
+      },
+    };
   }
 
   async deleteNotFinishedCarsServices(data: deleteNotFinishedCarsServicesData) {
