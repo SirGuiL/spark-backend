@@ -4,6 +4,12 @@ type createData = {
   name: string;
 };
 
+type updateData = {
+  id: string;
+  name: string;
+  cnpj: string;
+};
+
 export class AccountService {
   db: PrismaClient;
 
@@ -25,7 +31,7 @@ export class AccountService {
     });
   }
 
-  async update({ id, name, cnpj }: { id: string; name: string; cnpj: string }) {
+  async update({ id, name, cnpj }: updateData) {
     return await this.db.accounts.update({
       where: { id },
       data: { name, cnpj },

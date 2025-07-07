@@ -5,3 +5,5 @@ export { router as userRoutes } from "./userRoutes";
 export { router as accountRoutes } from "./accountRoutes";
 export { router as tagsRoutes } from "./tagsRoutes";
 export { router as brandsRoutes } from "./brandsRoutes";
+export { router as signatureRoutes } from "./signatureRoutes";
+export { router as plansRoutes } from "./plansRoutes";

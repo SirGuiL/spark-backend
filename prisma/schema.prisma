@@ -106,13 +106,39 @@ model Users {
 }
 
 model Accounts {
-  id        String   @id @default(uuid())
-  name      String?
-  cnpj      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isActive  Boolean  @default(true)
-  Users     Users[]
+  id           String         @id @default(uuid())
+  name         String?
+  cnpj         String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  isActive     Boolean        @default(true)
+  Users        Users[]
+  Subscription Subscription[]
+}
+
+model Subscription {
+  id                 String             @id @default(uuid())
+  planId             String
+  status             SubscriptionStatus
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAt           DateTime?
+  canceledAt         DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  accountId          String
+  account            Accounts           @relation(fields: [accountId], references: [id])
+}
+
+enum SubscriptionStatus {
+  trialing
+  active
+  past_due
+  canceled
+  incomplete
+  incomplete_expired
+  unpaid
+  paused
 }
 
 enum Role {
