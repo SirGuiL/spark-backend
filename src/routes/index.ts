@@ -7,3 +7,4 @@ export { router as tagsRoutes } from "./tagsRoutes";
 export { router as brandsRoutes } from "./brandsRoutes";
 export { router as signatureRoutes } from "./signatureRoutes";
 export { router as plansRoutes } from "./plansRoutes";
+export { router as stripeRoutes } from "./stripeRoutes";

@@ -14,6 +14,7 @@ import {
   brandsRoutes,
   signatureRoutes,
   plansRoutes,
+  stripeRoutes,
 } from "./routes";
 
 dotenv.config();
@@ -27,6 +28,8 @@ app.use(
   })
 );
 
+app.use("/stripe", stripeRoutes);
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -37,8 +40,8 @@ app.use("/users", userRoutes);
 app.use("/account", accountRoutes);
 app.use("/tags", tagsRoutes);
 app.use("/brands", brandsRoutes);
-app.use("/signature", signatureRoutes);
 app.use("/plans", plansRoutes);
+app.use("/signature", signatureRoutes);
 
 // @ts-ignore
 app.use((err, req, res, next) => {

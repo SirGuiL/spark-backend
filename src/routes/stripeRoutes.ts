@@ -1,9 +1,8 @@
-import { Router } from "express";
+import { Router, raw } from "express";
 import { PrismaClient } from "@prisma/client";
 import Stripe from "stripe";
 
 import { SignatureController } from "../controllers/signatureController";
-import { authenticateJWT } from "../middlewares/authenticateJWT";
 
 const router = Router();
 
@@ -13,17 +12,10 @@ const prisma = new PrismaClient();
 const signatureController = new SignatureController(prisma, stripe);
 
 router.post(
-  "/subscribe",
+  "/webhook",
+  raw({ type: "application/json" }),
   // @ts-ignore
-  [authenticateJWT],
-  signatureController.subscribe.bind(signatureController)
-);
-
-router.delete(
-  "/:subscriptionId/cancel",
-  // @ts-ignore
-  [authenticateJWT],
-  signatureController.cancelSubscription.bind(signatureController)
+  signatureController.webhook.bind(signatureController)
 );
 
 export { router };

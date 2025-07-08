@@ -118,7 +118,7 @@ model Accounts {
 
 model Subscription {
   id                 String             @id @default(uuid())
-  planId             String
+  planId             String             @unique
   status             SubscriptionStatus
   currentPeriodStart DateTime
   currentPeriodEnd   DateTime

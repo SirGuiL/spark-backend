@@ -19,17 +19,20 @@ type checkoutSessionData = {
   line_items: lineItem[];
   success_url: string;
   cancel_url: string;
+  metadata: {
+    accountId: string;
+  };
 };
 
 type createSubscriptionData = {
   accountId: string;
-  stripeSubscriptionId: string;
-  stripePriceId: string;
+  planId: string;
   status: SubscriptionStatus;
   currentPeriodStart: Date;
   currentPeriodEnd: Date;
   cancelAt: Date | null;
   canceledAt: Date | null;
+  updatedAt: Date;
 };
 
 export class SignatureService {
@@ -56,7 +59,7 @@ export class SignatureService {
   }
 
   async createSubscription(data: createSubscriptionData) {
-    const { stripeSubscriptionId, accountId, ...rest } = data;
+    const { planId, accountId, ...rest } = data;
 
     const subscriptionData = {
       ...rest,
@@ -64,12 +67,20 @@ export class SignatureService {
     };
 
     await this.db.subscription.upsert({
-      where: { stripeSubscriptionId },
-      create: {
-        stripeSubscriptionId,
-        ...subscriptionData,
+      where: {
+        planId,
       },
       update: subscriptionData,
+      create: {
+        planId,
+        ...subscriptionData,
+      },
+    });
+  }
+
+  async cancelSubscription({ planId }: { planId: string }) {
+    return await this.stripe.subscriptions.update(planId, {
+      cancel_at_period_end: true,
     });
   }
 }
