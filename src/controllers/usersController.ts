@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
+import { add } from "date-fns";
+import nodemailer from "nodemailer";
 
 import { UsersService } from "../services/usersService";
 import { Validators } from "../utils/validators";
@@ -163,5 +166,46 @@ export class UsersController {
     } catch (error) {
       res.status(400).json({ error });
     }
+  }
+
+  async updatePassword(req: Request, res: Response) {
+    const id = req.params.id;
+    const { password } = req.body;
+
+    const requiredFields = { id, password };
+
+    if (!Validators.validateRequiredFields(res, requiredFields)) {
+      return;
+    }
+
+    const encodedPassword = await bcrypt.hash(password, 10);
+
+    const usersService = new UsersService(this.prisma);
+    await usersService.update({ id, password: encodedPassword });
+
+    res.status(200).json({ message: "Password updated successfully" });
+  }
+
+  async sendUpdatePasswordLink(req: Request, res: Response) {
+    // @ts-ignore
+    const { user } = req;
+    const frontendUrl = req.get("X-Frontend-URL");
+
+    if (!user) {
+      return res.status(400).json({ error: "User not found" });
+    }
+
+    const expirationTime = add(new Date(), { minutes: 15 });
+
+    const usersService = new UsersService(this.prisma);
+
+    await usersService.sendUpdatePasswordLink({
+      email: user.email,
+      id: user.id,
+      frontendUrl: String(frontendUrl),
+      expirationTimeParam: expirationTime.toISOString(),
+    });
+
+    res.status(200).json({ message: "Link sent successfully" });
   }
 }

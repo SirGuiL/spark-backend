@@ -1,5 +1,6 @@
 import { $Enums, PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
+import nodemailer from "nodemailer";
 
 type createData = {
   email: string;
@@ -18,6 +19,13 @@ type updateData = {
 
 type MeData = {
   id: string;
+};
+
+type sendUpdatePasswordLinkData = {
+  id: string;
+  email: string;
+  frontendUrl: string;
+  expirationTimeParam: string;
 };
 
 export class UsersService {
@@ -39,7 +47,7 @@ export class UsersService {
 
   async me({ id }: MeData) {
     return await this.db.users.findUnique({
-      where: { id },
+      where: { id, isActive: true },
     });
   }
 
@@ -74,7 +82,32 @@ export class UsersService {
 
   async fetchAllByAccountId({ accountId }: { accountId: string }) {
     return await this.db.users.findMany({
-      where: { accountId },
+      where: { accountId, isActive: true },
+    });
+  }
+
+  async sendUpdatePasswordLink(data: sendUpdatePasswordLinkData) {
+    const { email, id, frontendUrl, expirationTimeParam } = data;
+
+    const service = process.env.APPLICATION_PROVIDER;
+    const user = process.env.APPLICATION_EMAIL;
+    const pass = process.env.APPLICATION_EMAIL_PASSWORD;
+
+    const auth = {
+      user,
+      pass,
+    };
+
+    const transporter = nodemailer.createTransport({
+      service,
+      auth,
+    });
+
+    await transporter.sendMail({
+      from: `sPark <${user}>`,
+      to: email,
+      subject: "Redefinição da sua senha sPark",
+      html: `<p>Esse é o link para a redefinição da sua senha: ${frontendUrl}/nova-senha/${id}?expiresAt=${expirationTimeParam}</p>`,
     });
   }
 }

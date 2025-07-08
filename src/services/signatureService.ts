@@ -83,4 +83,10 @@ export class SignatureService {
       cancel_at_period_end: true,
     });
   }
+
+  async fetchAllByAccountId({ accountId }: { accountId: string }) {
+    return await this.db.subscription.findMany({
+      where: { accountId },
+    });
+  }
 }

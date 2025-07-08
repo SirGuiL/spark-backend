@@ -11,6 +11,13 @@ const usersController = new UsersController(prisma);
 
 router.post("/", usersController.create.bind(usersController));
 
+router.post(
+  "/forgot-password",
+  // @ts-ignore
+  [authenticateJWT],
+  usersController.sendUpdatePasswordLink.bind(usersController)
+);
+
 router.get(
   "/",
   // @ts-ignore
@@ -44,6 +51,11 @@ router.patch(
   // @ts-ignore
   [authenticateJWT],
   usersController.deactivate.bind(usersController)
+);
+
+router.patch(
+  "/:id/password",
+  usersController.updatePassword.bind(usersController)
 );
 
 export { router };

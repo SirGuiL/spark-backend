@@ -12,6 +12,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const prisma = new PrismaClient();
 const signatureController = new SignatureController(prisma, stripe);
 
+router.get(
+  "/",
+  // @ts-ignore
+  [authenticateJWT],
+  signatureController.fetchAll.bind(signatureController)
+);
+
 router.post(
   "/subscribe",
   // @ts-ignore

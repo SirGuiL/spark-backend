@@ -86,6 +86,23 @@ export class SignatureController {
       .json({ message: "Subscribed successfully", url: subscription.url });
   }
 
+  async fetchAll(req: Request, res: Response) {
+    // @ts-ignore
+    const user = req.user;
+
+    if (!user) {
+      res.status(400).json({ error: "User not found" });
+      return;
+    }
+
+    const signatureService = new SignatureService(this.stripe, this.prisma);
+    const signatures = await signatureService.fetchAllByAccountId({
+      accountId: user.accountId,
+    });
+
+    res.status(200).json(signatures);
+  }
+
   async cancelSubscription(req: Request, res: Response) {
     // @ts-ignore
     const user = req.user;
