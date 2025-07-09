@@ -32,10 +32,21 @@ services:
     command: /bin/sh -c "npx prisma migrate dev && npx prisma generate && npm run dev"
     ports:
       - "3000:3000"
-      - "5555:5555"
     depends_on:
       - postgres
       - redis
+
+  studio:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: npx prisma studio
+    ports:
+      - "5555:5555"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://postgres:BEmbzFjwu8@postgres:5432/spark
 
 volumes:
   pgdata:
