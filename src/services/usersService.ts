@@ -28,6 +28,13 @@ type sendUpdatePasswordLinkData = {
   expirationTimeParam: string;
 };
 
+type fetchAllByAccountIdData = {
+  accountId: string;
+  page?: number;
+  limit?: number;
+  query?: string;
+};
+
 export class UsersService {
   db: PrismaClient;
 
@@ -80,10 +87,40 @@ export class UsersService {
     });
   }
 
-  async fetchAllByAccountId({ accountId }: { accountId: string }) {
-    return await this.db.users.findMany({
-      where: { accountId, isActive: true },
+  async fetchAllByAccountId(data: fetchAllByAccountIdData) {
+    const { accountId, limit = 10, page = 1, query = "" } = data;
+
+    const users = await this.db.users.findMany({
+      where: {
+        accountId,
+        isActive: true,
+        name: { contains: query },
+        email: { contains: query },
+      },
+      skip: (page - 1) * 10,
+      take: limit,
+      orderBy: {
+        createdAt: "desc",
+      },
     });
+
+    const count = await this.db.users.count({
+      where: {
+        accountId,
+        isActive: true,
+        name: { contains: query },
+        email: { contains: query },
+      },
+    });
+
+    return {
+      users,
+      metadata: {
+        count,
+        page,
+        limit,
+      },
+    };
   }
 
   async sendUpdatePasswordLink(data: sendUpdatePasswordLinkData) {

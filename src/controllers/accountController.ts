@@ -176,10 +176,15 @@ export class AccountController {
       return res.status(400).json({ error: "Only admin can fetch users" });
     }
 
+    const { page, query, limit } = req.query;
+
     try {
       const usersService = new UsersService(this.prisma);
       const users = await usersService.fetchAllByAccountId({
         accountId: user.accountId,
+        limit: limit ? Number(limit) : 10,
+        page: page ? Number(page) : 1,
+        query: query ? String(query) : "",
       });
 
       res.status(200).json(users);

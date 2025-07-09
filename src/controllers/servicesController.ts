@@ -73,7 +73,7 @@ export class ServicesController {
       const services = await servicesService.fetchAll({
         userId: user.id,
         page: Number(page),
-        query: String(query),
+        query: query ? String(query) : "",
       });
 
       res.status(200).json(services);
