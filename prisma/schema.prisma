@@ -88,21 +88,24 @@ model ServicesTags {
 }
 
 model Users {
-  id           String         @id @default(uuid())
-  name         String?
-  email        String         @unique
-  password     String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  isActive     Boolean        @default(true)
-  accountId    String
-  role         Role           @default(USER)
-  Cars         Cars[]
-  Services     Services[]
-  Tags         Tags[]
-  account      Accounts       @relation(fields: [accountId], references: [id])
-  CarsServices CarsServices[]
-  ServicesTags ServicesTags[]
+  id                 String         @id @default(uuid())
+  name               String?
+  email              String         @unique
+  password           String
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  isActive           Boolean        @default(true)
+  accountId          String
+  role               Role           @default(USER)
+  isTwoFactorEnabled Boolean        @default(false)
+  twoFactorSecret    String?
+  twoFactorType      TwoFactor?
+  Cars               Cars[]
+  Services           Services[]
+  Tags               Tags[]
+  account            Accounts       @relation(fields: [accountId], references: [id])
+  CarsServices       CarsServices[]
+  ServicesTags       ServicesTags[]
 }
 
 model Accounts {
@@ -150,4 +153,9 @@ enum Type {
   cars
   motorcycles
   trucks
+}
+
+enum TwoFactor {
+  code
+  totp
 }

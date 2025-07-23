@@ -1,19 +1,10 @@
 import { JwtPayload } from "jsonwebtoken";
+import { Users } from "@prisma/client";
 
 declare global {
   namespace Express {
     interface Request {
-      user: {
-        id: string;
-        name: string | null;
-        email: string;
-        password: string;
-        createdAt: Date;
-        updatedAt: Date;
-        isActive: boolean;
-        accountId: string;
-        role: $Enums.Role;
-      } | null;
+      user: Users | null;
     }
   }
 }
